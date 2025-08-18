@@ -144,7 +144,7 @@ io.on('connection', (socket) => {
     room.gameState.bids = {};
     room.gameState.turn++;
 
-    if (room.gameState.turn >= 6) {
+    if (room.gameState.turn >= 16) {
       io.to(roomID).emit('gameOver', room.gameState);
       // Clean up the room
       delete rooms[roomID];

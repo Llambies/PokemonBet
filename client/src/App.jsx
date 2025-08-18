@@ -64,18 +64,8 @@ function App() {
 
     socket.on('gameOver', (finalGameState) => {
         setGameState(finalGameState);
-        const [player1, player2] = Object.keys(finalGameState.players);
-        const stats1 = finalGameState.players[player1];
-        const stats2 = finalGameState.players[player2];
-        let winnerMessage;
-        if (stats1.money > stats2.money) {
-            winnerMessage = `${player1 === socket.id ? '¡Ganaste!' : 'Perdiste.'} El jugador ${player1} gana con ${stats1.money} monedas.`;
-        } else if (stats2.money > stats1.money) {
-            winnerMessage = `${player2 === socket.id ? '¡Ganaste!' : 'Perdiste.'} El jugador ${player2} gana con ${stats2.money} monedas.`;
-        } else {
-            winnerMessage = "¡Es un empate!";
-        }
-        setGameOver(winnerMessage);
+        const endMessage = "¡El draft ha terminado! Este es tu equipo final.";
+        setGameOver(endMessage);
         setMessage('¡Juego terminado!');
     });
 

@@ -15,6 +15,9 @@ function App() {
   const [bidAmount, setBidAmount] = useState('');
   const [inAuction, setInAuction] = useState(false);
   const [gameOver, setGameOver] = useState(null);
+  const [animationStep, setAnimationStep] = useState('');
+  const [auctionResult, setAuctionResult] = useState(null);
+
 
   useEffect(() => {
     socket.on('connect', () => console.log('Connected to server'));
@@ -62,6 +65,26 @@ function App() {
         setAuctionPokemon(null);
     });
 
+    socket.on('auctionReveal', (result) => {
+        setAuctionResult(result);
+        setAnimationStep('reveal'); // Start the animation sequence
+        
+        setTimeout(() => {
+            setAnimationStep('move');
+        }, 2000); // Show bids for 2s
+
+        setTimeout(() => {
+            setAnimationStep('done');
+            socket.emit('animationComplete', room);
+        }, 3000); // Animation takes 1s
+    });
+
+    socket.on('updateGameState', (newGameState) => {
+        setGameState(newGameState);
+        setAuctionResult(null);
+        setAnimationStep('');
+    });
+
     socket.on('gameOver', (finalGameState) => {
         setGameState(finalGameState);
         const endMessage = "¡El draft ha terminado! Este es tu equipo final.";
@@ -82,6 +105,8 @@ function App() {
       socket.off('waitingForOpponent');
       socket.off('auctionStart');
       socket.off('auctionResult');
+      socket.off('auctionReveal');
+      socket.off('updateGameState');
       socket.off('gameOver');
       socket.off('playerLeft');
     };
@@ -152,6 +177,24 @@ function App() {
             </div>
         )}
 
+        {animationStep && auctionResult && (
+            <div className={`auction-reveal ${animationStep}`}>
+                <div className="player-bid">
+                    <h4>Tú ({Object.keys(auctionResult.bids).find(id => id === socket.id)})</h4>
+                    <p>Puja: {auctionResult.bids[socket.id]}</p>
+                </div>
+
+                <div className={`pokemon-animation-container ${auctionResult.winner === socket.id ? 'move-to-player' : 'move-to-opponent'}`}>
+                    <img src={auctionResult.pokemon.sprite} alt={auctionResult.pokemon.name} />
+                </div>
+
+                <div className="player-bid">
+                     <h4>Oponente ({Object.keys(auctionResult.bids).find(id => id !== socket.id)})</h4>
+                    <p>Puja: {auctionResult.bids[Object.keys(auctionResult.bids).find(id => id !== socket.id)]}</p>
+                </div>
+            </div>
+        )}
+
         {gameOver && (
             <div className="game-over">
                 <h2>{message}</h2>
@@ -159,7 +202,7 @@ function App() {
             </div>
         )}
 
-        {gameState && !gameOver && (
+        {gameState && (
             <div className="game-state">
                 {Object.entries(gameState.players).map(([id, data]) => (
                     <div key={id} className="player-info">

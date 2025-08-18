@@ -102,7 +102,7 @@ io.on('connection', (socket) => {
     if (room && room.gameState) {
       room.gameState.bids[socket.id] = bid;
       if (Object.keys(room.gameState.bids).length === 2) {
-        // Auction logic here
+        // Both players have bid, resolve the auction
         resolveAuction(roomID);
       }
     }
@@ -115,7 +115,6 @@ io.on('connection', (socket) => {
     const [player1, player2] = room.players;
     const bid1 = room.gameState.bids[player1];
     const bid2 = room.gameState.bids[player2];
-    const pokemon = room.gameState.currentPokemon;
 
     let winner, loser, winningBid;
 
@@ -134,24 +133,51 @@ io.on('connection', (socket) => {
       winningBid = bid1; 
     }
     
-    room.gameState.players[winner].money -= winningBid;
-    room.gameState.players[winner].team.push(pokemon);
+    // Announce the results for the animation
+    io.to(roomID).emit('auctionReveal', { 
+      bids: room.gameState.bids, 
+      winner, 
+      loser, 
+      winningBid, 
+      pokemon: room.gameState.currentPokemon 
+    });
+  };
 
-    io.to(roomID).emit('auctionResult', { winner, loser, winningBid, pokemon, gameState: room.gameState });
+  socket.on('animationComplete', (roomID) => {
+    const room = rooms[roomID];
+    if (!room || !room.gameState) return;
+
+    const { currentPokemon, bids } = room.gameState;
+    const [player1, player2] = room.players;
+    const bid1 = bids[player1];
+    const bid2 = bids[player2];
+    let winner;
+
+     if (bid1 > bid2) {
+      winner = player1;
+    } else if (bid2 > bid1) {
+      winner = player2;
+    } else {
+      winner = Math.random() < 0.5 ? player1 : player2;
+    }
+    const winningBid = bids[winner];
+
+    room.gameState.players[winner].money -= winningBid;
+    room.gameState.players[winner].team.push(currentPokemon);
     
-    // Reset for next turn
+    io.to(roomID).emit('updateGameState', room.gameState);
+    
     room.gameState.currentPokemon = null;
     room.gameState.bids = {};
     room.gameState.turn++;
 
     if (room.gameState.turn >= 16) {
       io.to(roomID).emit('gameOver', room.gameState);
-      // Clean up the room
       delete rooms[roomID];
     } else {
       startTurn(roomID);
     }
-  };
+  });
 
   // The "catchall" handler: for any request that doesn't
   // match one above, send back React's index.html file.

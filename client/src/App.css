@@ -66,3 +66,37 @@ body {
   width: 96px;
   height: 96px;
 }
+
+.auction-reveal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 20px 0;
+  padding: 20px;
+  border: 2px dashed #646cff;
+  opacity: 0;
+  transition: opacity 0.5s ease-in;
+}
+
+.auction-reveal.reveal {
+  opacity: 1;
+}
+
+.player-bid {
+  text-align: center;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.pokemon-animation-container {
+  transition: transform 1s ease-in-out;
+}
+
+.auction-reveal.move .move-to-player {
+  transform: translateX(-250px) scale(0.5);
+}
+
+.auction-reveal.move .move-to-opponent {
+  transform: translateX(250px) scale(0.5);
+}

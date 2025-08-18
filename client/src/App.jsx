@@ -271,63 +271,114 @@ function App() {
             </div>
         )}
 
-        {/* Bid Results Reveal */}
+        {/* Bid Results Reveal - Enhanced Animation */}
         {showBidResults && bidResults && (
             <div className="bid-results-overlay">
                 <div className="bid-results-container">
-                    <div className="auction-pokemon-center">
-                        <img src={bidResults.pokemon?.sprite} alt={bidResults.pokemon?.name} />
-                        <h2>{bidResults.pokemon?.name}</h2>
-                        <p>#{String(bidResults.pokemon?.id).padStart(3, '0')}</p>
-                    </div>
-                    
-                    <div className="bids-reveal">
-                        <div className="bid-card">
-                            <div className="bid-player">
-                                <h3>👤 Tú</h3>
-                                <div className="bid-amount">
-                                    <span className="currency">₽</span>
-                                    <span className="amount" data-amount={bidResults?.playerBids?.[socket.id] || 0}>
-                                        {bidResults?.playerBids?.[socket.id] || 0}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div className="vs-divider">
-                            <span>VS</span>
-                        </div>
-                        
-                        <div className="bid-card">
-                            <div className="bid-player">
-                                <h3>🤖 Oponente</h3>
-                                <div className="bid-amount">
-                                    <span className="currency">₽</span>
-                                    <span className="amount" data-amount={bidResults?.playerBids?.[Object.keys(bidResults?.playerBids || {}).find(id => id !== socket.id)] || 0}>
-                                        {bidResults?.playerBids?.[Object.keys(bidResults?.playerBids || {}).find(id => id !== socket.id)] || 0}
-                                    </span>
-                                </div>
+                    {/* Header with Pokemon and Title */}
+                    <div className="reveal-header">
+                        <h1 className="reveal-title">🎯 RESULTADO DE LA SUBASTA 🎯</h1>
+                        <div className="auction-pokemon-showcase">
+                            <img src={bidResults.pokemon?.sprite} alt={bidResults.pokemon?.name} />
+                            <div className="pokemon-info">
+                                <h2>{bidResults.pokemon?.name}</h2>
+                                <p>#{String(bidResults.pokemon?.id).padStart(3, '0')}</p>
                             </div>
                         </div>
                     </div>
                     
+                    {/* Bids Comparison */}
+                    <div className="bids-comparison">
+                        <div className="comparison-title">
+                            <h3>💰 PUJAS REVELADAS 💰</h3>
+                        </div>
+                        
+                        <div className="bids-reveal-enhanced">
+                            <div className={`bid-card-enhanced player-card ${bidResults.winner === socket.id ? 'winning-card' : 'losing-card'}`}>
+                                <div className="player-avatar">👤</div>
+                                <div className="player-info">
+                                    <h3>TÚ</h3>
+                                    <div className="bid-display">
+                                        <div className="bid-label">Tu Puja:</div>
+                                        <div className="bid-amount-large">
+                                            <span className="currency-large">₽</span>
+                                            <span className="amount-large">
+                                                {bidResults?.playerBids?.[socket.id] || 0}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                {bidResults.winner === socket.id && (
+                                    <div className="winner-badge">
+                                        <span>👑 GANADOR</span>
+                                    </div>
+                                )}
+                            </div>
+                            
+                            <div className="vs-divider-enhanced">
+                                <div className="vs-circle">
+                                    <span>VS</span>
+                                </div>
+                            </div>
+                            
+                            <div className={`bid-card-enhanced opponent-card ${bidResults.winner !== socket.id ? 'winning-card' : 'losing-card'}`}>
+                                <div className="player-avatar">🤖</div>
+                                <div className="player-info">
+                                    <h3>OPONENTE</h3>
+                                    <div className="bid-display">
+                                        <div className="bid-label">Su Puja:</div>
+                                        <div className="bid-amount-large">
+                                            <span className="currency-large">₽</span>
+                                            <span className="amount-large">
+                                                {bidResults?.playerBids?.[Object.keys(bidResults?.playerBids || {}).find(id => id !== socket.id)] || 0}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                {bidResults.winner !== socket.id && (
+                                    <div className="winner-badge">
+                                        <span>👑 GANADOR</span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {/* Winner Announcement - Appears after delay */}
                     {revealWinner && (
-                        <div className="winner-reveal">
-                            <div className={`winner-announcement ${bidResults.winner === socket.id ? 'you-won' : 'opponent-won'}`}>
+                        <div className="final-result">
+                            <div className={`result-announcement ${bidResults.winner === socket.id ? 'victory' : 'defeat'}`}>
                                 {bidResults.winner === socket.id ? (
                                     <>
-                                        <h2>🎉 ¡GANASTE! 🎉</h2>
-                                        <p>Te has llevado a {bidResults.pokemon?.name}</p>
+                                        <div className="result-icon">🎉</div>
+                                        <h2>¡FELICIDADES!</h2>
+                                        <p>Has ganado la subasta</p>
+                                        <div className="pokemon-acquired">
+                                            <img src={bidResults.pokemon?.sprite} alt={bidResults.pokemon?.name} />
+                                            <div className="acquisition-text">
+                                                <strong>{bidResults.pokemon?.name}</strong> se une a tu equipo
+                                            </div>
+                                        </div>
+                                        <div className="cost-display">
+                                            Costo: <strong>{bidResults.winningBid} ₽</strong>
+                                        </div>
                                     </>
                                 ) : (
                                     <>
-                                        <h2>😔 Perdiste</h2>
-                                        <p>El oponente se llevó a {bidResults.pokemon?.name}</p>
+                                        <div className="result-icon">😔</div>
+                                        <h2>Subasta Perdida</h2>
+                                        <p>El oponente ha ganado</p>
+                                        <div className="pokemon-lost">
+                                            <img src={bidResults.pokemon?.sprite} alt={bidResults.pokemon?.name} />
+                                            <div className="loss-text">
+                                                <strong>{bidResults.pokemon?.name}</strong> va al equipo rival
+                                            </div>
+                                        </div>
+                                        <div className="cost-display">
+                                            Puja ganadora: <strong>{bidResults.winningBid} ₽</strong>
+                                        </div>
                                     </>
                                 )}
-                                <div className="winning-bid">
-                                    Puja ganadora: {bidResults.winningBid} ₽
-                                </div>
                             </div>
                         </div>
                     )}

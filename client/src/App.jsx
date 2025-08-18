@@ -76,6 +76,9 @@ function App() {
         setInAuction(false);
         setAuctionTimer(null);
         
+        // Lock body scroll when modal opens
+        document.body.classList.add('modal-open');
+        
         // Reveal winner after 2 seconds
         setTimeout(() => {
             setRevealWinner(true);
@@ -89,11 +92,12 @@ function App() {
         setGameState(newGameState);
         setMessage(resultMessage);
         
-        // Hide animation
+        // Hide animation and unlock body scroll
         setShowBidResults(false);
         setBidResults(null);
         setRevealWinner(false);
         setAuctionPokemon(null);
+        document.body.classList.remove('modal-open');
     });
 
     socket.on('gameOver', (finalGameState) => {
@@ -119,6 +123,9 @@ function App() {
       socket.off('auctionResult');
       socket.off('gameOver');
       socket.off('playerLeft');
+      
+      // Cleanup modal class on unmount
+      document.body.classList.remove('modal-open');
     };
   }, [room]);
 
@@ -134,6 +141,27 @@ function App() {
     }
     return () => clearInterval(interval);
   }, [auctionTimer, inAuction]);
+
+  // ESC key to close modal (accessibility)
+  useEffect(() => {
+    const handleEscKey = (e) => {
+      if (e.key === 'Escape' && showBidResults) {
+        // Force close modal if ESC is pressed
+        setShowBidResults(false);
+        setBidResults(null);
+        setRevealWinner(false);
+        document.body.classList.remove('modal-open');
+      }
+    };
+
+    if (showBidResults) {
+      document.addEventListener('keydown', handleEscKey);
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscKey);
+    };
+  }, [showBidResults]);
 
   const handleJoinRoom = () => {
     if (roomInput.trim() !== '') socket.emit('joinRoom', roomInput);
@@ -246,16 +274,16 @@ function App() {
                     )}
                 </div>
                 <div className="auction-pokemon">
-                    <img src={auctionPokemon?.sprite} alt={auctionPokemon?.name} />
+                <img src={auctionPokemon?.sprite} alt={auctionPokemon?.name} />
                     <h3>{auctionPokemon?.name}</h3>
                     <p>#{String(auctionPokemon?.id).padStart(3, '0')}</p>
                 </div>
                 <div className="bid-section">
-                    <input
+                <input
                         className="bid-input"
-                        type="number"
-                        value={bidAmount}
-                        onChange={(e) => setBidAmount(e.target.value)}
+                    type="number"
+                    value={bidAmount}
+                    onChange={(e) => setBidAmount(e.target.value)}
                         placeholder="Tu puja (₽)"
                         min="1"
                         max={gameState?.players[socket.id]?.money || 1000}
@@ -271,13 +299,19 @@ function App() {
             </div>
         )}
 
-        {/* Bid Results Reveal - Enhanced Animation */}
+        {/* Bid Results Reveal - Enhanced Animation Modal */}
         {showBidResults && bidResults && (
-            <div className="bid-results-overlay">
+            <div 
+                className="bid-results-overlay"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="auction-results-title"
+                tabIndex={-1}
+            >
                 <div className="bid-results-container">
                     {/* Header with Pokemon and Title */}
                     <div className="reveal-header">
-                        <h1 className="reveal-title">🎯 RESULTADO DE LA SUBASTA 🎯</h1>
+                        <h1 id="auction-results-title" className="reveal-title">🎯 RESULTADO DE LA SUBASTA 🎯</h1>
                         <div className="auction-pokemon-showcase">
                             <img src={bidResults.pokemon?.sprite} alt={bidResults.pokemon?.name} />
                             <div className="pokemon-info">
@@ -420,8 +454,8 @@ function App() {
                             <h5 style={{marginBottom: '10px', color: '#4a5568'}}>
                                 🎒 Equipo ({data.team.length}/8)
                             </h5>
-                            <div className="team">
-                                {data.team.map((p, i) => (
+                        <div className="team">
+                            {data.team.map((p, i) => (
                                     <div key={i} className="team-pokemon" title={`${p.name} - #${p.id}`}>
                                         <img src={p.sprite} alt={p.name} />
                                     </div>

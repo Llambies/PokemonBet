@@ -115,69 +115,63 @@ io.on('connection', (socket) => {
     const [player1, player2] = room.players;
     const bid1 = room.gameState.bids[player1];
     const bid2 = room.gameState.bids[player2];
+    const pokemon = room.gameState.currentPokemon;
 
-    let winner, loser, winningBid;
+    let winner, winningBid;
 
     if (bid1 > bid2) {
       winner = player1;
-      loser = player2;
       winningBid = bid1;
     } else if (bid2 > bid1) {
       winner = player2;
-      loser = player1;
       winningBid = bid2;
     } else {
       // Tie-break: randomly choose a winner
       winner = Math.random() < 0.5 ? player1 : player2;
-      loser = winner === player1 ? player2 : player1;
       winningBid = bid1; 
     }
     
-    // Announce the results for the animation
+    // Show the animation first
     io.to(roomID).emit('auctionReveal', { 
       bids: room.gameState.bids, 
       winner, 
-      loser, 
       winningBid, 
-      pokemon: room.gameState.currentPokemon 
+      pokemon
     });
+
+    // After animation delay, update game state and continue
+    setTimeout(() => {
+      room.gameState.players[winner].money -= winningBid;
+      room.gameState.players[winner].team.push(pokemon);
+      
+      const winnerMsg = winner === player1 ? 'El jugador 1 ganó la subasta' : 'El jugador 2 ganó la subasta';
+      
+      // Reset auction state
+      room.gameState.currentPokemon = null;
+      room.gameState.bids = {};
+      room.gameState.turn++;
+
+      // Send updated game state
+      io.to(roomID).emit('auctionResult', { 
+        winner, 
+        winningBid, 
+        pokemon, 
+        gameState: room.gameState,
+        message: `${winnerMsg}. Se llevó a ${pokemon.name} por ${winningBid} ₽`
+      });
+
+      // Check if game is over or continue to next turn
+      if (room.gameState.turn >= 16) {
+        io.to(roomID).emit('gameOver', room.gameState);
+        delete rooms[roomID];
+      } else {
+        // Start next turn after a brief delay
+        setTimeout(() => {
+          startTurn(roomID);
+        }, 1000);
+      }
+    }, 5500); // Wait for animation to complete
   };
-
-  socket.on('animationComplete', (roomID) => {
-    const room = rooms[roomID];
-    if (!room || !room.gameState) return;
-
-    const { currentPokemon, bids } = room.gameState;
-    const [player1, player2] = room.players;
-    const bid1 = bids[player1];
-    const bid2 = bids[player2];
-    let winner;
-
-     if (bid1 > bid2) {
-      winner = player1;
-    } else if (bid2 > bid1) {
-      winner = player2;
-    } else {
-      winner = Math.random() < 0.5 ? player1 : player2;
-    }
-    const winningBid = bids[winner];
-
-    room.gameState.players[winner].money -= winningBid;
-    room.gameState.players[winner].team.push(currentPokemon);
-    
-    io.to(roomID).emit('updateGameState', room.gameState);
-    
-    room.gameState.currentPokemon = null;
-    room.gameState.bids = {};
-    room.gameState.turn++;
-
-    if (room.gameState.turn >= 16) {
-      io.to(roomID).emit('gameOver', room.gameState);
-      delete rooms[roomID];
-    } else {
-      startTurn(roomID);
-    }
-  });
 
   // The "catchall" handler: for any request that doesn't
   // match one above, send back React's index.html file.

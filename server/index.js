@@ -25,12 +25,14 @@ const getPokemon = async () => {
     const requests = randomIds.map(id => axios.get(`${POKEAPI_URL}${id}`));
     const responses = await Promise.all(requests);
 
+    const shiny = Math.random() > 0.9;
+
     return responses.map(res => (
       {
         id: res.data.id,
         name: res.data.name,
-        sprite: res.data.sprites.other.showdown.front_default || res.data.sprites.other['official-artwork'].front_default,
-        miniatura: res.data.sprites.front_default
+        sprite: shiny ? (res.data.sprites.other.showdown.front_shiny || res.data.sprites.other['official-artwork'].front_shiny) : (res.data.sprites.other.showdown.front_default || res.data.sprites.other['official-artwork'].front_default),
+        miniatura: shiny ? res.data.sprites.front_shiny : res.data.sprites.front_default
       }));
   } catch (error) {
     console.error('Error fetching Pokémon:', error);

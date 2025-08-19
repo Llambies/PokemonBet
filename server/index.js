@@ -29,7 +29,8 @@ const getPokemon = async () => {
       {
         id: res.data.id,
         name: res.data.name,
-        sprite: res.data.sprites.other.showdown.front_default,
+        sprite: res.data.sprites.other.showdown.front_default || res.data.sprites.other['official-artwork'].front_default,
+        miniatura: res.data.sprites.front_default
       }));
   } catch (error) {
     console.error('Error fetching Pokémon:', error);

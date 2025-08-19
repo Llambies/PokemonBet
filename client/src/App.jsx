@@ -484,6 +484,15 @@ function App() {
         <div className="game-over">
           <h2>🎉 {message} 🎉</h2>
           <p>{gameOver}</p>
+
+          {gameState.players[socket.id].team.map((p) => (
+            <div className="game-over-pokemon">
+              <img src={p.miniatura} alt={p.name} />
+              <h3>{p.name}</h3>
+              <p>#{String(p.id).padStart(3, "0")}</p>
+            </div>
+          ))}
+
           <div style={{ marginTop: "20px" }}>
             <button
               className="btn-primary"
@@ -523,7 +532,7 @@ function App() {
                       className="team-pokemon"
                       title={`${p.name} - #${p.id}`}
                     >
-                      <img src={p.sprite} alt={p.name} />
+                      <img src={p.miniatura} alt={p.name} />
                     </div>
                   ))}
                   {/* Empty slots visualization */}

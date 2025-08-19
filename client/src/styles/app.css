@@ -1,0 +1,24 @@
+/* Estilos principales de la aplicación */
+
+.App {
+  padding: var(--spacing-lg);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Responsive para el título principal */
+@media (max-width: 768px) {
+  .App {
+    padding: var(--spacing-xs);
+    min-height: 100vh;
+  }
+}
+
+@media (max-width: 480px) {
+  .App {
+    padding: 3px;
+  }
+}

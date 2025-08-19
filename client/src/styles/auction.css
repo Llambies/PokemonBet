@@ -1,0 +1,244 @@
+/* Estilos para subastas */
+
+.auction-section {
+  background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+  color: white;
+  padding: 25px;
+  border-radius: var(--radius-md);
+  text-align: center;
+  margin-bottom: 25px;
+  box-shadow: 0 4px 15px rgba(229, 62, 62, 0.3);
+  animation: pulse 2s infinite;
+}
+
+.auction-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+}
+
+.auction-header h3 {
+  margin: 0;
+  flex: 1;
+}
+
+.auction-timer {
+  display: flex;
+  align-items: center;
+  animation: timerPulse 2s ease-in-out infinite;
+}
+
+.timer-circle {
+  width: 60px;
+  height: 60px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, #ffd700, #ffa500);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #2d3748;
+  font-weight: 700;
+  font-size: 1.1rem;
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.5);
+  position: relative;
+  border: 3px solid rgba(255, 255, 255, 0.5);
+}
+
+.timer-circle::before {
+  content: "";
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  right: -5px;
+  bottom: -5px;
+  border-radius: var(--radius-full);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.auction-pokemon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+}
+
+.auction-pokemon img {
+  width: 120px;
+  height: 120px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-full);
+  padding: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.auction-pokemon h3 {
+  font-size: 1.5rem;
+  text-transform: capitalize;
+}
+
+.bid-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+.bid-input {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 16px;
+  margin-right: var(--spacing-sm);
+  min-width: 150px;
+  text-align: center;
+  font-weight: 600;
+}
+
+.btn-bid {
+  background: linear-gradient(135deg, #ffd700 0%, #ffa500 100%);
+  color: #2d3748;
+  border: none;
+  padding: var(--spacing-sm) 25px;
+  border-radius: var(--radius-sm);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+}
+
+.btn-bid:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 215, 0, 0.6);
+}
+
+.btn-bid:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Animaciones */
+@keyframes pulse {
+  0%,
+  100% {
+    box-shadow: 0 4px 15px rgba(229, 62, 62, 0.3);
+  }
+  50% {
+    box-shadow: 0 4px 25px rgba(229, 62, 62, 0.5);
+  }
+}
+
+@keyframes timerPulse {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.5);
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 6px 25px rgba(255, 215, 0, 0.8);
+  }
+}
+
+/* Responsive para subastas */
+@media (max-width: 768px) {
+  .auction-section {
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+    border-radius: var(--radius-md);
+  }
+
+  .auction-header {
+    flex-direction: column;
+    text-align: center;
+    gap: var(--spacing-sm);
+  }
+
+  .auction-header h3 {
+    font-size: 1.2rem;
+    margin: 0;
+  }
+
+  .auction-timer {
+    margin-top: var(--spacing-sm);
+  }
+
+  .timer-circle {
+    width: 50px;
+    height: 50px;
+    font-size: 1rem;
+  }
+
+  .auction-pokemon {
+    margin-bottom: var(--spacing-md);
+  }
+
+  .auction-pokemon img {
+    width: 100px;
+    height: 100px;
+    padding: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .auction-pokemon h3 {
+    font-size: 1.3rem;
+  }
+
+  .bid-section {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    width: 100%;
+  }
+
+  .bid-input {
+    width: 100%;
+    padding: var(--spacing-md) var(--spacing-lg);
+    font-size: 18px;
+    border-radius: var(--radius-sm);
+    text-align: center;
+    margin: 0;
+  }
+
+  .btn-bid {
+    width: 100%;
+    padding: var(--spacing-md) 25px;
+    font-size: 16px;
+    border-radius: var(--radius-sm);
+    min-height: 50px;
+  }
+}
+
+@media (max-width: 480px) {
+  .auction-section {
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+  }
+
+  .auction-header h3 {
+    font-size: 1.1rem;
+  }
+
+  .auction-pokemon img {
+    width: 80px;
+    height: 80px;
+  }
+
+  .auction-pokemon h3 {
+    font-size: 1.2rem;
+  }
+
+  .bid-input {
+    padding: 14px 16px;
+    font-size: 16px;
+  }
+
+  .btn-bid {
+    padding: 14px var(--spacing-lg);
+    font-size: 15px;
+    min-height: 48px;
+  }
+}

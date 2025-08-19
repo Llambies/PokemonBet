@@ -1,0 +1,120 @@
+/* Estilos base y variables globales */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+
+:root {
+  /* Colores principales */
+  --yellow: #fabd2f;
+  --yellow-alt: #d79921;
+  --green: #b8bb26;
+  --green-alt: #98971a;
+  --blue: #83a598;
+  --blue-alt: #458588;
+  --purple: #d3869b;
+  --purple-alt: #b16286;
+  --red: #fb4934;
+  --red-alt: #cc241d;
+  --orange: #fe8019;
+  --orange-alt: #d65d0e;
+  --aqua: #8ec07c;
+  --aqua-alt: #689d6a;
+  --gray: #a89984;
+  --gray-alt: #928374;
+
+  /* Colores de fondo y texto */
+  --bg: #282828;
+  --bg-alt: #1d2021;
+  --fg: #ebdbb2;
+  --fg-alt: #fbf1c7;
+
+  /* Espaciados */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+
+  /* Border radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 50%;
+
+  /* Sombras */
+  --shadow-sm: 0 4px 8px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 16px 32px rgba(0, 0, 0, 0.1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html,
+body {
+  overflow-x: hidden;
+  position: relative;
+}
+
+body {
+  font-family: "Rubik", sans-serif;
+  background: var(--bg);
+  min-height: 100vh;
+  width: 100vw;
+  color: var(--fg);
+  overflow-x: hidden;
+}
+
+/* Modal body scroll lock */
+body.modal-open {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+}
+
+/* Mejoras de rendimiento en móvil */
+.pokemon-card,
+.bid-card-enhanced,
+.vs-circle,
+.winner-badge {
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+}
+
+/* Mejor experiencia táctil */
+button,
+.pokemon-card,
+.lobby-input,
+.bid-input {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+/* Prevenir selección de texto en elementos UI */
+button,
+.pokemon-card,
+.vs-circle,
+.winner-badge {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Estados de foco mejorados para accesibilidad */
+button:focus,
+input:focus {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}

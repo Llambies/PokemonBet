@@ -21,14 +21,16 @@ const POKEAPI_URL = 'https://pokeapi.co/api/v2/pokemon/';
 
 const getPokemon = async () => {
   try {
-    const randomIds = Array.from({ length: 3 }, () => Math.floor(Math.random() * 898) + 1);
+    const randomIds = Array.from({ length: 3 }, () => Math.floor(Math.random() * 1024) + 1);
     const requests = randomIds.map(id => axios.get(`${POKEAPI_URL}${id}`));
     const responses = await Promise.all(requests);
-    return responses.map(res => ({
-      id: res.data.id,
-      name: res.data.name,
-      sprite: res.data.sprites.front_default,
-    }));
+
+    return responses.map(res => (
+      {
+        id: res.data.id,
+        name: res.data.name,
+        sprite: res.data.sprites.other['official-artwork'].front_default,
+      }));
   } catch (error) {
     console.error('Error fetching Pokémon:', error);
     return [];
@@ -107,7 +109,7 @@ io.on('connection', (socket) => {
       }
     }
   });
-  
+
   const resolveAuction = (roomID) => {
     const room = rooms[roomID];
     if (!room || !room.gameState || Object.keys(room.gameState.bids).length !== 2) return;
@@ -128,14 +130,14 @@ io.on('connection', (socket) => {
     } else {
       // Tie-break: randomly choose a winner
       winner = Math.random() < 0.5 ? player1 : player2;
-      winningBid = bid1; 
+      winningBid = bid1;
     }
-    
+
     // Show the animation first
-    io.to(roomID).emit('auctionReveal', { 
-      bids: room.gameState.bids, 
-      winner, 
-      winningBid, 
+    io.to(roomID).emit('auctionReveal', {
+      bids: room.gameState.bids,
+      winner,
+      winningBid,
       pokemon
     });
 
@@ -143,19 +145,19 @@ io.on('connection', (socket) => {
     setTimeout(() => {
       room.gameState.players[winner].money -= winningBid;
       room.gameState.players[winner].team.push(pokemon);
-      
+
       const winnerMsg = winner === player1 ? 'El jugador 1 ganó la subasta' : 'El jugador 2 ganó la subasta';
-      
+
       // Reset auction state
       room.gameState.currentPokemon = null;
       room.gameState.bids = {};
       room.gameState.turn++;
 
       // Send updated game state
-      io.to(roomID).emit('auctionResult', { 
-        winner, 
-        winningBid, 
-        pokemon, 
+      io.to(roomID).emit('auctionResult', {
+        winner,
+        winningBid,
+        pokemon,
         gameState: room.gameState,
         message: `${winnerMsg}. Se llevó a ${pokemon.name} por ${winningBid} ₽`
       });

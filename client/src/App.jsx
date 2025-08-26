@@ -2,6 +2,25 @@ import { useState, useEffect } from "react";
 import io from "socket.io-client";
 import "./App.css";
 
+// Función para convertir equipo a formato Showdown
+const convertToShowdownFormat = (team) => {
+  if (!team || team.length === 0) {
+    return "No tienes Pokémon en tu equipo.";
+  }
+
+  return team
+    .map((pokemon) => {
+      const capitalizedName = pokemon.name
+        .split('-')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join('-');
+      
+      return `${capitalizedName}
+Level: 50`;
+    })
+    .join('\n\n');
+};
+
 const URL = import.meta.env.DEV ? "http://localhost:3001" : "";
 const socket = io(URL);
 
@@ -21,6 +40,39 @@ function App() {
   const [showBidResults, setShowBidResults] = useState(false);
   const [bidResults, setBidResults] = useState(null);
   const [revealWinner, setRevealWinner] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [exportText, setExportText] = useState('');
+  const [copySuccess, setCopySuccess] = useState(false);
+
+  // Función para manejar la exportación a Showdown
+  const handleExportToShowdown = () => {
+    if (gameState && gameState.players[socket.id]) {
+      const team = gameState.players[socket.id].team;
+      const showdownText = convertToShowdownFormat(team);
+      setExportText(showdownText);
+      setShowExportModal(true);
+    }
+  };
+
+  // Función para copiar al portapapeles
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(exportText);
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+    } catch (err) {
+      console.error('Error al copiar:', err);
+      // Fallback para navegadores que no soportan clipboard API
+      const textArea = document.createElement('textarea');
+      textArea.value = exportText;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+    }
+  };
 
   useEffect(() => {
     socket.on("connect", () => console.log("Connected to server"));
@@ -493,13 +545,59 @@ function App() {
             </div>
           ))}
 
-          <div style={{ marginTop: "20px" }}>
+          <div style={{ marginTop: "20px", display: "flex", gap: "15px", justifyContent: "center", flexWrap: "wrap" }}>
+            <button
+              className="btn-secondary"
+              onClick={handleExportToShowdown}
+              title="Exportar equipo para Pokémon Showdown"
+            >
+              📤 Exportar a Showdown
+            </button>
             <button
               className="btn-primary"
               onClick={() => window.location.reload()}
             >
               🔄 Nueva Partida
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Exportación a Showdown */}
+      {showExportModal && (
+        <div className="modal-overlay" onClick={() => setShowExportModal(false)}>
+          <div className="export-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="export-modal-header">
+              <h3>🎯 Exportación a Pokémon Showdown</h3>
+              <button 
+                className="modal-close"
+                onClick={() => setShowExportModal(false)}
+                title="Cerrar"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="export-modal-content">
+              <p>Copia este texto y pégalo en Pokémon Showdown para importar tu equipo:</p>
+              <div className="export-text-area">
+                <pre>{exportText}</pre>
+              </div>
+              <div className="export-modal-actions">
+                <button
+                  className={`btn-primary ${copySuccess ? 'copy-success' : ''}`}
+                  onClick={copyToClipboard}
+                  disabled={copySuccess}
+                >
+                  {copySuccess ? '✅ ¡Copiado!' : '📋 Copiar al Portapapeles'}
+                </button>
+              </div>
+              <div className="export-instructions">
+                <small>
+                  💡 <strong>Cómo usar:</strong> Ve a <a href="https://play.pokemonshowdown.com/teambuilder" target="_blank" rel="noopener noreferrer">Pokémon Showdown Teambuilder</a>, 
+                  crea un nuevo equipo y usa "Import" para pegar este texto.
+                </small>
+              </div>
+            </div>
           </div>
         </div>
       )}
